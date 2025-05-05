@@ -1,41 +1,42 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-
-// Criando o app
+require('dotenv').config();
 const app = express();
 
-// Substitua a string abaixo pela sua string do MongoDB Atlas
-const MONGO_URI =
-  'mongodb+srv://admin:admin123@cluster0.nmgtsym.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
-
+const MONGO_URI = process.env.DB_URL;
+const clientOptions = {
+    serverApi: {
+        version: '1',
+        strict: true,
+        deprecationErrors: true
+    }
+};
 mongoose
-  .connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log('🔗 Conectado ao MongoDB Atlas com sucesso!'))
+  .connect(MONGO_URI, clientOptions)
+  .then(() => console.log('Conectado ao MongoDB Atlas com sucesso!'))
   .catch((err) =>
     console.error('Erro de conexão com o MongoDB Atlas:', err)
   );
 
-// Definindo a porta do servidor
 const PORT = process.env.PORT || 5000;
-
-// Middlewares
 app.use(bodyParser.json());
+const Pessoa = require('./Pessoa.js');
 
-// Modelo
-const Nome = require('./Nome.js');
-
-// Rota
-app.post('/addNome', async (req, res) => {
+// POST
+app.post('/addPessoa', async (req, res) => {
   try {
-    const { nome } = req.body;
+    const { pessoaInfo } = req.body;
 
-    if (!nome) {
-      return res.status(400).json({ error: 'O nome é obrigatório' });
+    // All attributes on Pessoa.js are required: true, might render this check unnecessary
+    if (!pessoaInfo.nome || !pessoaInfo.dataNascimento || !pessoaInfo.profissao) {
+      return res.status(400).json({ 
+            error: 'É necessário incluir nome, profissao e data de nascimento' 
+        });
     }
 
-    const novoNome = new Nome({ nome });
-    await novoNome.save();
+    const novaPessoa = new Pessoa({ pessoaInfo });
+    await novaPessoa.save();
 
     res
       .status(201)
@@ -43,11 +44,10 @@ app.post('/addNome', async (req, res) => {
   } catch (err) {
     res
       .status(500)
-      .json({ error: 'Erro ao salvar o nome', detalhes: err.message });
+      .json({ error: 'Erro ao salvar a pessoa', detalhes: err.message });
   }
 });
 
-// Iniciar servidor
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
 });

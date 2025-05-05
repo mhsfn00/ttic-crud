@@ -1,16 +1,13 @@
 const mongoose = require('mongoose');
 
 // Criando o modelo para "Nome"
-const nomeSchema = new mongoose.Schema(
+const pessoaSchema = new mongoose.Schema(
   {
-    nome: {
-      type: String,
-      required: true,
-      trim: true, // remove espaços extras
-    },
+    nome: { type: String, required: true, trim: true },
+    dataNascimento: { type: Date, required: true },
+    profissao: { type: String, required: true }
   },
   { timestamps: true }
-); // Adiciona automaticamente createdAt e updatedAt
+);
 
-// Criando e exportando o modelo
-module.exports = mongoose.model('Nome', nomeSchema);
+module.exports = mongoose.model('Nome', pessoaSchema);
