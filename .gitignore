@@ -6,6 +6,7 @@ pnpm-debug.log*
 
 # Files
 node_modules
+databases
 
 # Sensitive
 .env

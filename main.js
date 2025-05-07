@@ -1,46 +1,47 @@
 const express = require('express');
-const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
-require('dotenv').config();
 const app = express();
+const dbLocal = require("db-local");
+const { Schema } = new dbLocal({ path: "./databases" });
+const PORT = 5000;
 
-const MONGO_URI = process.env.DB_URL;
-const clientOptions = {
-    serverApi: {
-        version: '1',
-        strict: true,
-        deprecationErrors: true
-    }
-};
-mongoose
-  .connect(MONGO_URI, clientOptions)
-  .then(() => console.log('Conectado ao MongoDB Atlas com sucesso!'))
-  .catch((err) =>
-    console.error('Erro de conexão com o MongoDB Atlas:', err)
-  );
+// Criando model User para dbLocal
+const User = Schema("User", {
+  // dbLocal (assim como mongodb) adiciona o campo _id automaticamente
+  username: { type: String, default: "Customer" },
+  tag: { type: String, default: "CustomerTag" },
+  bag: { type: Array, default: ["Nothing"] }
+});
 
-const PORT = process.env.PORT || 5000;
-app.use(bodyParser.json());
-const Pessoa = require('./Pessoa.js');
+// Para que o express consiga ler req.body
+app.use(express.json());
 
 // POST
-app.post('/addPessoa', async (req, res) => {
+app.post('/user', async (req, res) => {
   try {
-    const { pessoaInfo } = req.body;
-
-    // All attributes on Pessoa.js are required: true, might render this check unnecessary
-    if (!pessoaInfo.nome || !pessoaInfo.dataNascimento || !pessoaInfo.profissao) {
-      return res.status(400).json({ 
-            error: 'É necessário incluir nome, profissao e data de nascimento' 
-        });
-    }
-
-    const novaPessoa = new Pessoa({ pessoaInfo });
-    await novaPessoa.save();
+    const newUser = req.body;
+    const createdUser = await User.create({
+      username: newUser.username,
+      tag: newUser.tag,
+      bag: newUser.bag
+    }).save();
 
     res
       .status(201)
-      .json({ message: 'Nome salvo com sucesso!', nome: novoNome });
+      .json({ message: 'Novo usuário salvo', novoUsuario: createdUser});
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: 'Erro ao salvar a pessoa', detalhes: err.message });
+  }
+});
+
+// GET
+app.get('/user', async (req, res) => {
+  try {
+    const allUsers = await User.find();
+    res
+      .status(200)
+      .json({ usuarios: allUsers });
   } catch (err) {
     res
       .status(500)
@@ -49,5 +50,5 @@ app.post('/addPessoa', async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
+  console.log(`Endpoints começam com esse endereço -> http://localhost:${PORT}`);
 });

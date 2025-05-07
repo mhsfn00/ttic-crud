@@ -2,11 +2,12 @@
     "name": "node-starter",
     "version": "0.0.0",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "dev": "nodemon main.js"
     },
     "dependencies": {
-        "dotenv": "^16.5.0",
+        "db-local": "^3.1.0",
         "express": "^5.1.0",
-        "mongoose": "^8.14.1"
+        "nodemon": "^3.1.10"
     }
 }
