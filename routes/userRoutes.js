@@ -7,3 +7,5 @@ router.route('/')
   .post(userController.postUser)
   .put(userController.putUser)
   .delete(userController.deleteUser)
+
+  module.exports = router;
