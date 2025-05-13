@@ -3,7 +3,9 @@ const { Schema } = new LocalDB({ path: './databases' });
 
 const User = Schema("User", {
     username: { type: String, required: true },
-    tag: { type: String, default: "userTag" },
+    nome: { type: String, default: "Usuário" },
+    idade: { type: Number, default: 0},
+    hobbies: { type: Array, default: []},
     createdAt: { type: String, default: "YYYY-MM-DD" }
 });
 

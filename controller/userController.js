@@ -1,10 +1,5 @@
 const User = require('../models/User.js');
 
-// 200 OK
-// 201 Informação criada (POST)
-// 500 Erro interno servidor
-// 400 Erro na requisição (faltou informação)
-
 const getAllUsers = async (req, res) => {
     try {
         const allUsers = await User.find();    
@@ -19,12 +14,68 @@ const createUser = async (req, res) => {
         const { newUser } = req.body;
         const newUserModel = User.create({
             username: newUser.username,
-            tag: newUser.tag,
-            createdAt: newUser.createdAt || new Date().toISOString(),
+            nome: newUser.nome,
+            idade: newUser.idade,
+            hobbies: newUser.hobbies,
         });
-        
         const databaseResponse = await newUserModel.save();
+
         res.status(201).json({ result: databaseResponse });
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+}
+
+const updateUser = async (req, res) => {
+    try {
+        const { updatedUser } = req.body;
+        const { username } = updatedUser;
+
+        if (!username) {
+            res.status(400).json({ message: 'username não encontrado na requisição'});
+        }
+        
+        const user = await User.findOne({ username: username });
+
+        user.nome = updatedUser.nome ? updatedUser.nome : user.nome;
+        user.idade = updatedUser.idade ? updatedUser.idade : user.idade;
+        user.hobbies = updatedUser.hobbies ? updatedUser.hobbies : user.hobbies;
+        user.save();
+
+        const newUserInfo = await User.findOne({ username: username });
+
+        res.status(200).json({ newUser: newUserInfo });
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+}
+
+const deleteUser = async (req, res) => {
+    try {
+        const { username } = req.body;
+
+        const user = await User.findOne({ username: username });
+        if (!user) {
+            res.status(400).json({ message: 'usuário não foi encontrado' });
+        }
+        user.remove();
+
+        res.status(200).json({ result: "usuário removido com sucesso" });
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+}
+
+const getById = async (req, res) => {
+    try {
+        const { username } = req.body;
+
+        const user = await User.findOne({ username: username });
+        if (!user) {
+            res.status(400).json({ message: 'usuário não foi encontrado' });
+        } else {
+            res.status(200).json({ result: user });
+        }
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
@@ -32,5 +83,8 @@ const createUser = async (req, res) => {
 
 module.exports = { 
     getAllUsers,
-    createUser
+    createUser,
+    updateUser,
+    deleteUser,
+    getById
 }

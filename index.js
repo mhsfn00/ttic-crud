@@ -7,9 +7,9 @@ app.use(express.json());
 // Importando as rotas de User
 const userRoutes = require('./routes/userRoutes.js');
 
-// Adicionando as rotas do usuário
+// Associando as rotas de usuário a /user
 app.use('/user', userRoutes);
 
 app.listen(PORT, () => {
-    console.log(`Endereço do servidor http://localhost:${PORT}`);
+    console.log(`Endereço da API http://localhost:${PORT}`);
 });
